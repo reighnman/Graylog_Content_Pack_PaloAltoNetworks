@@ -1,0 +1,802 @@
+{
+  "id" : null,
+  "name" : "Palo Alto Networks",
+  "description" : "Palo Alto Networks Firewall Content Pack",
+  "category" : "Firewalls, PAN-OS",
+  "inputs" : [ {
+    "title" : "PAN-syslog",
+    "configuration" : {
+      "recv_buffer_size" : 1048576,
+      "port" : 5514,
+      "tls_key_file" : "",
+      "tls_key_password" : "",
+      "max_message_size" : 2097152,
+      "override_source" : "",
+      "allow_override_date" : true,
+      "tls_cert_file" : "",
+      "bind_address" : "0.0.0.0"
+    },
+    "type" : "org.graylog2.inputs.syslog.tcp.SyslogTCPInput",
+    "global" : true,
+    "extractors" : [ {
+      "title" : "PAN_THREAT",
+      "type" : "GROK",
+      "configuration" : {
+        "grok_pattern" : "%{IPORHOST:source} +: +%{BASE10NUM:Domain},%{DATE_US2:LoggedDate} +%{TIME:LoggedTime},%{BASE10NUM:SerialNumber},%{WORD:Type},%{NOTCOMMA:Subtype},%{NOTCOMMA:ConfigVersion},%{DATE_US2:EventDate} +%{TIME:EventTime},%{IP:SourceIP},%{IP:DestinationIP},(%{IP:NATSourceIP})?,(%{IP:NATDestinationIP})?,%{NOTCOMMA:RuleName},(%{NOTCOMMA:SourceUser})?,(%{NOTCOMMA:DestinationUser})?,(%{NOTCOMMA:Application})?,%{WORD:VirtualSystem},%{NOTCOMMA:SourceZone},%{NOTCOMMA:DestinationZone},%{NOTCOMMA:IngressInterface},%{NOTCOMMA:EgressInterface},%{NOTCOMMA:LogForwardingProfile},%{DATE_US2:UNWANTED} +%{TIME:UNWANTED},%{BASE10NUM:SessionID},%{BASE10NUM:RepeatCount},(%{BASE10NUM:SourcePort})?,(%{BASE10NUM:DestinationPort})?,(%{BASE10NUM:NATSourcePort})?,(%{BASE10NUM:NATDestinationPort})?,%{WORD:Flags},%{WORD:Protocol},%{NOTCOMMA:Action},%{QSORNC:Miscellaneous},%{NOTCOMMA:ThreatID},%{NOTCOMMA:Category},%{WORD:Severity},%{NOTCOMMA:Direction},%{BASE10NUM:Sequence},%{WORD:ActionFlags},(%{NOTCOMMA:SourceLocation})?,(%{NOTCOMMA:DestinationLocation}).*"
+      },
+      "converters" : [ ],
+      "order" : 0,
+      "cursor_strategy" : "COPY",
+      "target_field" : "message",
+      "source_field" : "message",
+      "condition_type" : "REGEX",
+      "condition_value" : "^(.*,THREAT,.*)"
+    }, {
+      "title" : "PAN_SYSTEM",
+      "type" : "GROK",
+      "configuration" : {
+        "grok_pattern" : "%{IPORHOST:source} +: +%{BASE10NUM:Domain},%{DATE_US2:LoggedDate} +%{TIME:LoggedTime},%{BASE10NUM:SerialNumber},%{WORD:Type},%{NOTCOMMA:Subtype},%{BASE10NUM:ConfigVersion},%{DATE_US2:EventDate} +%{TIME:EventTime},(%{NOTCOMMA:VirtualSystem})?,%{NOTCOMMA:Event},(%{NOTCOMMA:Object})?,(%{NOTCOMMA:FMT})?,(%{NOTCOMMA:ID})?,(%{NOTCOMMA:Module})?,%{NOTCOMMA:Severity},%{QSORNC:Description},%{NOTCOMMA:Sequence},%{NOTCOMMA:ActionFlags}.*"
+      },
+      "converters" : [ ],
+      "order" : 1,
+      "cursor_strategy" : "COPY",
+      "target_field" : "message",
+      "source_field" : "message",
+      "condition_type" : "REGEX",
+      "condition_value" : "^(.*,SYSTEM,.*)"
+    }, {
+      "title" : "PAN_CONFIG",
+      "type" : "GROK",
+      "configuration" : {
+        "grok_pattern" : "%{IPORHOST:source} +: +%{BASE10NUM:Domain},%{DATE_US2:LoggedDate} +%{TIME:LoggedTime},%{BASE10NUM:SerialNumber},%{WORD:Type},%{NOTCOMMA:Subtype},%{BASE10NUM:ConfigVersion},%{DATE_US2:EventDate} +%{TIME:EventTime},%{IPV4:Host},(%{NOTCOMMA:VirtualSystem})?,%{NOTCOMMA:Cmd},%{NOTCOMMA:Admin},%{NOTCOMMA:Client},%{NOTCOMMA:Result},(%{NOTCOMMA:Path})?,%{NOTCOMMA:Sequence},%{NOTCOMMA:ActionFlags}.*"
+      },
+      "converters" : [ ],
+      "order" : 2,
+      "cursor_strategy" : "COPY",
+      "target_field" : "message",
+      "source_field" : "message",
+      "condition_type" : "REGEX",
+      "condition_value" : "^(.*,CONFIG,.*)"
+    }, {
+      "title" : "PAN_POSTPROCESS_GlobalProtect_Login",
+      "type" : "GROK",
+      "configuration" : {
+        "grok_pattern" : "GlobalProtect %{WORD:VPNType} +user +%{WORD:EventAction} +%{WORD:Result}. Login from: +%{IP:FromIP}, (User name: %{WORD:UserName})?[.\\\",]+%{GREEDYDATA:Details}"
+      },
+      "converters" : [ ],
+      "order" : 4,
+      "cursor_strategy" : "COPY",
+      "target_field" : "Description",
+      "source_field" : "Description",
+      "condition_type" : "REGEX",
+      "condition_value" : "^(.*GlobalProtect +(gateway|portal).*user.*User name.*)"
+    }, {
+      "title" : "PAN_TRAFFIC",
+      "type" : "GROK",
+      "configuration" : {
+        "grok_pattern" : "%{IPORHOST:source} +: +%{BASE10NUM:Domain},%{DATE_US2:LoggedDate} +%{TIME:LoggedTime},%{BASE10NUM:SerialNumber},%{WORD:Type},%{NOTCOMMA:Subtype},%{NOTCOMMA:ConfigVersion},%{DATE_US2:EventDate} +%{TIME:EventTime},%{IP:SourceIP},%{IP:DestinationIP},(%{IP:NATSourceIP})?,(%{IP:NATDestinationIP})?,%{NOTCOMMA:RuleName},(%{NOTCOMMA:SourceUser})?,(%{NOTCOMMA:DestinationUser})?,(%{NOTCOMMA:Application})?,%{WORD:VirtualSystem},%{NOTCOMMA:SourceZone},%{NOTCOMMA:DestinationZone},%{NOTCOMMA:IngressInterface},%{NOTCOMMA:EgressInterface},%{NOTCOMMA:LogForwardingProfile},%{DATE_US2:UNWANTED} +%{TIME:UNWANTED},%{BASE10NUM:SessionID},%{BASE10NUM:RepeatCount},(%{BASE10NUM:SourcePort})?,(%{BASE10NUM:DestinationPort})?,(%{BASE10NUM:NATSourcePort})?,(%{BASE10NUM:NATDestinationPort})?,%{WORD:Flags},%{WORD:Protocol},%{NOTCOMMA:Action},%{BASE10NUM:Bytes},%{BASE10NUM:BytesSent},%{BASE10NUM:BytesReceived},%{BASE10NUM:Packets},%{DATE_US2:UNWANTED} +%{TIME:UNWANTED},%{BASE10NUM:ElapsedTime},%{NOTCOMMA:Category},%{BASE10NUM:Padding},%{BASE10NUM:Sequence},%{WORD:ActionFlags},(%{NOTCOMMA:SourceLocation})?,(%{NOTCOMMA:DestinationLocation}),(%{BASE10NUM:UNWANTED})?,%{BASE10NUM:PktsSent},%{BASE10NUM:PktsReceived},%{NOTCOMMA:SessionEndReason}.*"
+      },
+      "converters" : [ ],
+      "order" : 3,
+      "cursor_strategy" : "COPY",
+      "target_field" : "message",
+      "source_field" : "message",
+      "condition_type" : "REGEX",
+      "condition_value" : "^(.*,TRAFFIC,.*)"
+    } ],
+    "static_fields" : { }
+  } ],
+  "streams" : [ ],
+  "outputs" : [ ],
+  "dashboards" : [ {
+    "title" : "PAN Threat Summary - High & Critical (24h)",
+    "description" : "PAN Threat Summary - High & Critical",
+    "dashboard_widgets" : [ {
+      "description" : "Critical & High Threats",
+      "type" : "SEARCH_RESULT_CHART",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "interval" : "minute",
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:high OR Severity:critical) AND NOT Subtype:file"
+      },
+      "col" : 1,
+      "row" : 1,
+      "cache_time" : 60
+    }, {
+      "description" : "Critical & High Threats",
+      "type" : "SEARCH_RESULT_COUNT",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "lower_is_better" : true,
+        "trend" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:high OR Severity:critical) AND NOT Subtype:file"
+      },
+      "col" : 4,
+      "row" : 1,
+      "cache_time" : 60
+    }, {
+      "description" : "By SourceIP",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "SourceIP",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 1,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "By DestinationIP",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "DestinationIP",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 2,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "By ThreatID",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "ThreatID",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 3,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "By Severity",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Severity",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 4,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "By EgressInterface",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "EgressInterface",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 1,
+      "row" : 5,
+      "cache_time" : 60
+    }, {
+      "description" : "By IngressInterface",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "IngressInterface",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 2,
+      "row" : 5,
+      "cache_time" : 60
+    }, {
+      "description" : "By Application",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Application",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 3,
+      "row" : 5,
+      "cache_time" : 60
+    }, {
+      "description" : "By Action",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Action",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 4,
+      "row" : 5,
+      "cache_time" : 60
+    } ]
+  }, {
+    "title" : "PAN GlobalProtect Portal Login Summary (7d)",
+    "description" : "PAN GlobalProtect Portal Login Summary",
+    "dashboard_widgets" : [ {
+      "description" : "Successful Logins",
+      "type" : "SEARCH_RESULT_CHART",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 604800
+        },
+        "interval" : "hour",
+        "query" : "Type:SYSTEM AND EventAction:authentication AND Event:globalprotectportal\\-auth\\-succ"
+      },
+      "col" : 1,
+      "row" : 1,
+      "cache_time" : 60
+    }, {
+      "description" : "Successful Logins By IP",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 604800
+        },
+        "field" : "FromIP",
+        "show_pie_chart" : true,
+        "query" : "Type:SYSTEM AND EventAction:authentication AND Event:globalprotectportal\\-auth\\-succ",
+        "show_data_table" : true
+      },
+      "col" : 2,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "Successful Logins By Device",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 604800
+        },
+        "field" : "SerialNumber",
+        "show_pie_chart" : true,
+        "query" : "Type:SYSTEM AND EventAction:authentication AND Event:globalprotectportal\\-auth\\-succ",
+        "show_data_table" : true
+      },
+      "col" : 3,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "Failed Logins By User",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 604800
+        },
+        "field" : "UserName",
+        "show_pie_chart" : true,
+        "query" : "Type:SYSTEM EventAction:authentication AND Event:globalprotectportal\\-auth\\-fail",
+        "show_data_table" : true
+      },
+      "col" : 1,
+      "row" : 6,
+      "cache_time" : 60
+    }, {
+      "description" : "Failed Logins By IP",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 604800
+        },
+        "field" : "FromIP",
+        "show_pie_chart" : true,
+        "query" : "Type:SYSTEM EventAction:authentication AND Event:globalprotectportal\\-auth\\-fail",
+        "show_data_table" : true
+      },
+      "col" : 2,
+      "row" : 6,
+      "cache_time" : 60
+    }, {
+      "description" : "Successful Logins By User",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 604800
+        },
+        "field" : "UserName",
+        "show_pie_chart" : true,
+        "query" : "Type:SYSTEM AND EventAction:authentication AND Event:globalprotectportal\\-auth\\-succ",
+        "show_data_table" : true
+      },
+      "col" : 1,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "Failed Logins By Device",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 604800
+        },
+        "field" : "SerialNumber",
+        "show_pie_chart" : true,
+        "query" : "Type:SYSTEM AND EventAction:authentication AND Event:globalprotectportal\\-auth\\-fail",
+        "show_data_table" : true
+      },
+      "col" : 3,
+      "row" : 6,
+      "cache_time" : 60
+    }, {
+      "description" : "Failed Logins",
+      "type" : "SEARCH_RESULT_CHART",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 604800
+        },
+        "interval" : "hour",
+        "query" : "Type:SYSTEM EventAction:authentication AND Event:globalprotectportal\\-auth\\-fail"
+      },
+      "col" : 1,
+      "row" : 5,
+      "cache_time" : 60
+    } ]
+  }, {
+    "title" : "PAN Threat Summary (24h)",
+    "description" : "PAN Threat Summary ",
+    "dashboard_widgets" : [ {
+      "description" : "Total Threats",
+      "type" : "SEARCH_RESULT_CHART",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "interval" : "minute",
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file"
+      },
+      "col" : 1,
+      "row" : 1,
+      "cache_time" : 60
+    }, {
+      "description" : "Total Threats",
+      "type" : "SEARCH_RESULT_COUNT",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "lower_is_better" : true,
+        "trend" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file"
+      },
+      "col" : 4,
+      "row" : 1,
+      "cache_time" : 60
+    }, {
+      "description" : "By SouceIP",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "SourceIP",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 1,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "By DestinationIP",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "DestinationIP",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 2,
+      "row" : 2,
+      "cache_time" : 10
+    }, {
+      "description" : "By Severity",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Severity",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 4,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "By ThreatID",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "ThreatID",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 3,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "By EgressInterface",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "EgressInterface",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT (Subtype:url OR Subtype:file)",
+        "show_data_table" : true
+      },
+      "col" : 1,
+      "row" : 5,
+      "cache_time" : 60
+    }, {
+      "description" : "By IngressInterface",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "IngressInterface",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT (Subtype:url OR Subtype:file)",
+        "show_data_table" : true
+      },
+      "col" : 2,
+      "row" : 5,
+      "cache_time" : 60
+    }, {
+      "description" : "By Application",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Application",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 3,
+      "row" : 5,
+      "cache_time" : 60
+    }, {
+      "description" : "By Action",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Action",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 4,
+      "row" : 5,
+      "cache_time" : 60
+    } ]
+  }, {
+    "title" : "PAN URL Filtering Summary (24h)",
+    "description" : "PAN URL Filtering Summary ",
+    "dashboard_widgets" : [ {
+      "description" : "Allowed Requests",
+      "type" : "SEARCH_RESULT_CHART",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "interval" : "minute",
+        "query" : "Type:THREAT AND Subtype:url AND (Action:alert OR Action:allow)"
+      },
+      "col" : 1,
+      "row" : 1,
+      "cache_time" : 60
+    }, {
+      "description" : "Allowed By User ",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "SourceUser",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND Subtype:url AND (Action:alert OR Action:allow)",
+        "show_data_table" : true
+      },
+      "col" : 1,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "Allowed By SourceIP",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "SourceIP",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND Subtype:url AND (Action:alert OR Action:allow)",
+        "show_data_table" : true
+      },
+      "col" : 2,
+      "row" : 2,
+      "cache_time" : 10
+    }, {
+      "description" : "Allowed By Category",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Category",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND Subtype:url AND (Action:alert OR Action:allow)",
+        "show_data_table" : true
+      },
+      "col" : 3,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "Blocked Requests",
+      "type" : "SEARCH_RESULT_CHART",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "interval" : "minute",
+        "query" : "Type:THREAT AND Subtype:url AND NOT (Action:alert OR Action:allow)"
+      },
+      "col" : 1,
+      "row" : 5,
+      "cache_time" : 60
+    }, {
+      "description" : "Blocked Requests",
+      "type" : "SEARCH_RESULT_COUNT",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "lower_is_better" : false,
+        "trend" : false,
+        "query" : "Type:THREAT AND Subtype:url AND NOT (Action:alert OR Action:allow)"
+      },
+      "col" : 4,
+      "row" : 5,
+      "cache_time" : 60
+    }, {
+      "description" : "Allowed Requests",
+      "type" : "SEARCH_RESULT_COUNT",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "lower_is_better" : false,
+        "trend" : false,
+        "query" : "Type:THREAT AND Subtype:url AND (Action:alert OR Action:allow)"
+      },
+      "col" : 4,
+      "row" : 1,
+      "cache_time" : 60
+    }, {
+      "description" : "Allowed By URL",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Miscellaneous",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND Subtype:url AND (Action:alert OR Action:allow)",
+        "show_data_table" : true
+      },
+      "col" : 4,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "Blocked By URL",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Miscellaneous",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND Subtype:url AND NOT (Action:alert OR Action:allow)",
+        "show_data_table" : true
+      },
+      "col" : 4,
+      "row" : 6,
+      "cache_time" : 60
+    }, {
+      "description" : "Blocked By Category",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Category",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND Subtype:url AND NOT (Action:alert OR Action:allow)",
+        "show_data_table" : true
+      },
+      "col" : 3,
+      "row" : 6,
+      "cache_time" : 60
+    }, {
+      "description" : "Blocked By User",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "SourceUser",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND Subtype:url AND NOT (Action:alert OR Action:allow)",
+        "show_data_table" : true
+      },
+      "col" : 1,
+      "row" : 6,
+      "cache_time" : 60
+    }, {
+      "description" : "Blocked By SourceIP",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "SourceIP",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND Subtype:url AND NOT (Action:alert OR Action:allow)",
+        "show_data_table" : true
+      },
+      "col" : 2,
+      "row" : 6,
+      "cache_time" : 60
+    } ]
+  } ],
+  "grok_patterns" : [ {
+    "name" : "DATE_US2",
+    "pattern" : "%{YEAR}[/-]%{MONTHNUM}[/-]%{MONTHDAY}"
+  }, {
+    "name" : "MINUTE",
+    "pattern" : "(?:[0-5][0-9])"
+  }, {
+    "name" : "TIME",
+    "pattern" : "(?!<[0-9])%{HOUR}:%{MINUTE}(?::%{SECOND})(?![0-9])"
+  }, {
+    "name" : "SECOND",
+    "pattern" : "(?:[0-5][0-9])"
+  }, {
+    "name" : "HOSTNAME",
+    "pattern" : "\\b(?:[0-9A-Za-z][0-9A-Za-z-]{0,62})(?:\\.(?:[0-9A-Za-z][0-9A-Za-z-]{0,62}))*(\\.?|\\b)"
+  }, {
+    "name" : "MONTHDAY",
+    "pattern" : "(?:(?:0[1-9])|(?:[12][0-9])|(?:3[01])|[1-9])"
+  }, {
+    "name" : "MONTHNUM2",
+    "pattern" : "(?:0[1-9]|1[0-2])"
+  }, {
+    "name" : "IPORHOST",
+    "pattern" : "(?:%{HOSTNAME}|%{IP})"
+  }, {
+    "name" : "HOST",
+    "pattern" : "%{HOSTNAME}"
+  }, {
+    "name" : "QSORNC",
+    "pattern" : "(%{QUOTEDQUOTES}|%{NOTCOMMA})"
+  }, {
+    "name" : "QUOTEDSTRING",
+    "pattern" : "(?>(?<!\\\\)(?>\"(?>\\\\.|[^\\\\\"]+)+\"|\"\"|(?>'(?>\\\\.|[^\\\\']+)+')|''|(?>`(?>\\\\.|[^\\\\`]+)+`)|``))"
+  }, {
+    "name" : "GREEDYDATA",
+    "pattern" : ".*"
+  }, {
+    "name" : "IPV4",
+    "pattern" : "(?<![0-9])(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))(?![0-9])"
+  }, {
+    "name" : "MONTHNUM",
+    "pattern" : "(?:0?[1-9]|1[0-2])"
+  }, {
+    "name" : "NOTCOMMA",
+    "pattern" : "[^,]+"
+  }, {
+    "name" : "IPV6",
+    "pattern" : "((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)(\\.(25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)){3}))|:)))(%.+)?"
+  }, {
+    "name" : "MONTH",
+    "pattern" : "\\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\\b"
+  }, {
+    "name" : "TZ",
+    "pattern" : "(?:[PMCE][SD]T|UTC)"
+  }, {
+    "name" : "QS",
+    "pattern" : "%{QUOTEDSTRING}"
+  }, {
+    "name" : "BASE10NUM",
+    "pattern" : "(?<![0-9.+-])(?>[+-]?(?:(?:[0-9]+(?:\\.[0-9]+)?)|(?:\\.[0-9]+)))"
+  }, {
+    "name" : "INT",
+    "pattern" : "(?:[+-]?(?:[0-9]+))"
+  }, {
+    "name" : "QUOTEDQUOTES",
+    "pattern" : "(\"((?:[^\"]|\"\")*+)\")"
+  }, {
+    "name" : "IP",
+    "pattern" : "(?:%{IPV6}|%{IPV4})"
+  } ]
+}
