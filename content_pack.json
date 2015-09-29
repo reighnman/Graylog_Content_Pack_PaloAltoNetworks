@@ -61,7 +61,7 @@
       "title" : "PAN_POSTPROCESS_GlobalProtect_Login",
       "type" : "GROK",
       "configuration" : {
-        "grok_pattern" : "GlobalProtect %{WORD:VPNType} +user +%{WORD:EventAction} +%{WORD:Result}. Login from: +%{IP:FromIP}, (User name: %{WORD:UserName})?[.\\\",]+%{GREEDYDATA:Details}"
+        "grok_pattern" : "GlobalProtect %{WORD:VPNType} +user +%{WORD:EventAction} +%{WORD:Result}. Login from: +%{IP:FromIP}, (User name: %{NOTCOMMA:UserName})?[.\\\",]+%{GREEDYDATA:Details}"
       },
       "converters" : [ ],
       "order" : 4,
