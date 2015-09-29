@@ -802,9 +802,6 @@
     "name" : "YEAR",
     "pattern" : "(?>\d\d){1,2}"
   }, {
-    "name" : "WORD",
-    "pattern" : "\b\w+\b"
-  }, {
     "name" : "IP",
     "pattern" : "(?:%{IPV6}|%{IPV4})"
   } ]
