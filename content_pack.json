@@ -61,7 +61,7 @@
       "title" : "PAN_POSTPROCESS_GlobalProtect_Login",
       "type" : "GROK",
       "configuration" : {
-        "grok_pattern" : "GlobalProtect %{WORD:VPNType} +user +%{WORD:EventAction} +%{WORD:Result}. Login from: +%{IP:FromIP}, (User name: %{WORD:UserName})?[.\\\",]+%{GREEDYDATA:Details}"
+        "grok_pattern" : "GlobalProtect %{WORD:VPNType} +user +%{WORD:EventAction} +%{WORD:Result}. Login from: +%{IP:FromIP}, (User name: %{NOTCOMMA:UserName})?[.\\\",]+%{GREEDYDATA:Details}"
       },
       "converters" : [ ],
       "order" : 4,
@@ -389,7 +389,7 @@
           "range" : 86400
         },
         "interval" : "minute",
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file"
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT Subtype:file"
       },
       "col" : 1,
       "row" : 1,
@@ -404,7 +404,7 @@
         },
         "lower_is_better" : true,
         "trend" : true,
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file"
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT Subtype:file"
       },
       "col" : 4,
       "row" : 1,
@@ -419,7 +419,7 @@
         },
         "field" : "SourceIP",
         "show_pie_chart" : true,
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT Subtype:file",
         "show_data_table" : true
       },
       "col" : 1,
@@ -435,7 +435,7 @@
         },
         "field" : "DestinationIP",
         "show_pie_chart" : true,
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT Subtype:file",
         "show_data_table" : true
       },
       "col" : 2,
@@ -451,7 +451,7 @@
         },
         "field" : "Severity",
         "show_pie_chart" : true,
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT Subtype:file",
         "show_data_table" : true
       },
       "col" : 4,
@@ -467,7 +467,7 @@
         },
         "field" : "ThreatID",
         "show_pie_chart" : true,
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT Subtype:file",
         "show_data_table" : true
       },
       "col" : 3,
@@ -483,7 +483,7 @@
         },
         "field" : "EgressInterface",
         "show_pie_chart" : true,
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT (Subtype:url OR Subtype:file)",
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT (Subtype:url OR Subtype:file)",
         "show_data_table" : true
       },
       "col" : 1,
@@ -499,7 +499,7 @@
         },
         "field" : "IngressInterface",
         "show_pie_chart" : true,
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT (Subtype:url OR Subtype:file)",
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT (Subtype:url OR Subtype:file)",
         "show_data_table" : true
       },
       "col" : 2,
@@ -515,7 +515,7 @@
         },
         "field" : "Application",
         "show_pie_chart" : true,
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT Subtype:file",
         "show_data_table" : true
       },
       "col" : 3,
@@ -531,7 +531,7 @@
         },
         "field" : "Action",
         "show_pie_chart" : true,
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT Subtype:file",
         "show_data_table" : true
       },
       "col" : 4,
