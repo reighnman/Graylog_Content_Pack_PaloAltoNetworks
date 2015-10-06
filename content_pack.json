@@ -32,19 +32,6 @@
       "condition_type" : "REGEX",
       "condition_value" : "^(.*,THREAT,.*)"
     }, {
-      "title" : "PAN_SYSTEM",
-      "type" : "GROK",
-      "configuration" : {
-        "grok_pattern" : "%{IPORHOST:source} +: +%{BASE10NUM:Domain},%{DATE_US2:LoggedDate} +%{TIME:LoggedTime},%{BASE10NUM:SerialNumber},%{NOTCOMMA:Type},%{NOTCOMMA:Subtype},%{BASE10NUM:ConfigVersion},%{DATE_US2:EventDate} +%{TIME:EventTime},(%{NOTCOMMA:VirtualSystem})?,%{NOTCOMMA:Event},(%{NOTCOMMA:Object})?,(%{NOTCOMMA:FMT})?,(%{NOTCOMMA:ID})?,(%{NOTCOMMA:Module})?,%{NOTCOMMA:Severity},%{QSORNC:Description},%{NOTCOMMA:Sequence},%{NOTCOMMA:ActionFlags}.*"
-      },
-      "converters" : [ ],
-      "order" : 1,
-      "cursor_strategy" : "COPY",
-      "target_field" : "message",
-      "source_field" : "message",
-      "condition_type" : "REGEX",
-      "condition_value" : "^(.*,SYSTEM,.*)"
-    }, {
       "title" : "PAN_CONFIG",
       "type" : "GROK",
       "configuration" : {
@@ -57,6 +44,19 @@
       "source_field" : "message",
       "condition_type" : "REGEX",
       "condition_value" : "^(.*,CONFIG,.*)"
+    }, {
+      "title" : "PAN_TRAFFIC",
+      "type" : "GROK",
+      "configuration" : {
+        "grok_pattern" : "%{IPORHOST:source} +: +%{BASE10NUM:Domain},%{DATE_US2:LoggedDate} +%{TIME:LoggedTime},%{BASE10NUM:SerialNumber},%{NOTCOMMA:Type},%{NOTCOMMA:Subtype},%{NOTCOMMA:ConfigVersion},%{DATE_US2:EventDate} +%{TIME:EventTime},%{IP:SourceIP},%{IP:DestinationIP},(%{IP:NATSourceIP})?,(%{IP:NATDestinationIP})?,%{NOTCOMMA:RuleName},(%{NOTCOMMA:SourceUser})?,(%{NOTCOMMA:DestinationUser})?,(%{NOTCOMMA:Application})?,%{NOTCOMMA:VirtualSystem},%{NOTCOMMA:SourceZone},%{NOTCOMMA:DestinationZone},%{NOTCOMMA:IngressInterface},%{NOTCOMMA:EgressInterface},%{NOTCOMMA:LogForwardingProfile},%{DATE_US2:UNWANTED} +%{TIME:UNWANTED},%{BASE10NUM:SessionID},%{BASE10NUM:RepeatCount},(%{BASE10NUM:SourcePort})?,(%{BASE10NUM:DestinationPort})?,(%{BASE10NUM:NATSourcePort})?,(%{BASE10NUM:NATDestinationPort})?,%{NOTCOMMA:Flags},%{NOTCOMMA:Protocol},%{NOTCOMMA:Action},%{BASE10NUM:Bytes},%{BASE10NUM:BytesSent},%{BASE10NUM:BytesReceived},%{BASE10NUM:Packets},%{DATE_US2:UNWANTED} +%{TIME:UNWANTED},%{BASE10NUM:ElapsedTime},%{NOTCOMMA:Category},%{BASE10NUM:Padding},%{BASE10NUM:Sequence},%{NOTCOMMA:ActionFlags},(%{NOTCOMMA:SourceLocation})?,(%{NOTCOMMA:DestinationLocation}),(%{BASE10NUM:UNWANTED})?,%{BASE10NUM:PktsSent},%{BASE10NUM:PktsReceived},%{NOTCOMMA:SessionEndReason}.*"
+      },
+      "converters" : [ ],
+      "order" : 3,
+      "cursor_strategy" : "COPY",
+      "target_field" : "message",
+      "source_field" : "message",
+      "condition_type" : "REGEX",
+      "condition_value" : "^(.*,TRAFFIC,.*)"
     }, {
       "title" : "PAN_POSTPROCESS_GlobalProtect_Login",
       "type" : "GROK",
@@ -71,18 +71,18 @@
       "condition_type" : "REGEX",
       "condition_value" : "^(.*GlobalProtect +(gateway|portal).*user.*User name.*)"
     }, {
-      "title" : "PAN_TRAFFIC",
+      "title" : "PAN_SYSTEM",
       "type" : "GROK",
       "configuration" : {
-        "grok_pattern" : "%{IPORHOST:source} +: +%{BASE10NUM:Domain},%{DATE_US2:LoggedDate} +%{TIME:LoggedTime},%{BASE10NUM:SerialNumber},%{NOTCOMMA:Type},%{NOTCOMMA:Subtype},%{NOTCOMMA:ConfigVersion},%{DATE_US2:EventDate} +%{TIME:EventTime},%{IP:SourceIP},%{IP:DestinationIP},(%{IP:NATSourceIP})?,(%{IP:NATDestinationIP})?,%{NOTCOMMA:RuleName},(%{NOTCOMMA:SourceUser})?,(%{NOTCOMMA:DestinationUser})?,(%{NOTCOMMA:Application})?,%{NOTCOMMA:VirtualSystem},%{NOTCOMMA:SourceZone},%{NOTCOMMA:DestinationZone},%{NOTCOMMA:IngressInterface},%{NOTCOMMA:EgressInterface},%{NOTCOMMA:LogForwardingProfile},%{DATE_US2:UNWANTED} +%{TIME:UNWANTED},%{BASE10NUM:SessionID},%{BASE10NUM:RepeatCount},(%{BASE10NUM:SourcePort})?,(%{BASE10NUM:DestinationPort})?,(%{BASE10NUM:NATSourcePort})?,(%{BASE10NUM:NATDestinationPort})?,%{NOTCOMMA:Flags},%{NOTCOMMA:Protocol},%{NOTCOMMA:Action},%{BASE10NUM:Bytes},%{BASE10NUM:BytesSent},%{BASE10NUM:BytesReceived},%{BASE10NUM:Packets},%{DATE_US2:UNWANTED} +%{TIME:UNWANTED},%{BASE10NUM:ElapsedTime},%{NOTCOMMA:Category},%{BASE10NUM:Padding},%{BASE10NUM:Sequence},%{NOTCOMMA:ActionFlags},(%{NOTCOMMA:SourceLocation})?,(%{NOTCOMMA:DestinationLocation}),(%{BASE10NUM:UNWANTED})?,%{BASE10NUM:PktsSent},%{BASE10NUM:PktsReceived},%{NOTCOMMA:SessionEndReason}.*"
+        "grok_pattern" : "%{IPORHOST:source} +: +%{BASE10NUM:Domain},%{DATE_US2:LoggedDate} +%{TIME:LoggedTime},%{BASE10NUM:SerialNumber},%{NOTCOMMA:Type},%{NOTCOMMA:Subtype},%{BASE10NUM:ConfigVersion},%{DATE_US2:EventDate} +%{TIME:EventTime},(%{NOTCOMMA:VirtualSystem})?,%{NOTCOMMA:Event},(%{NOTCOMMA:Object})?,(%{NOTCOMMA:FMT})?,(%{NOTCOMMA:ID})?,(%{NOTCOMMA:Module})?,%{NOTCOMMA:Severity},%{QSORNC:Description},%{NOTCOMMA:Sequence},%{NOTCOMMA:ActionFlags}.*"
       },
       "converters" : [ ],
-      "order" : 3,
+      "order" : 1,
       "cursor_strategy" : "COPY",
       "target_field" : "message",
       "source_field" : "message",
       "condition_type" : "REGEX",
-      "condition_value" : "^(.*,TRAFFIC,.*)"
+      "condition_value" : "^(.*,SYSTEM,.*)"
     } ],
     "static_fields" : { }
   } ],
@@ -442,22 +442,6 @@
       "row" : 2,
       "cache_time" : 10
     }, {
-      "description" : "By Severity",
-      "type" : "QUICKVALUES",
-      "configuration" : {
-        "timerange" : {
-          "type" : "relative",
-          "range" : 86400
-        },
-        "field" : "Severity",
-        "show_pie_chart" : true,
-        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT Subtype:file",
-        "show_data_table" : true
-      },
-      "col" : 4,
-      "row" : 2,
-      "cache_time" : 60
-    }, {
       "description" : "By ThreatID",
       "type" : "QUICKVALUES",
       "configuration" : {
@@ -471,6 +455,22 @@
         "show_data_table" : true
       },
       "col" : 3,
+      "row" : 2,
+      "cache_time" : 60
+    }, {
+      "description" : "By Severity",
+      "type" : "QUICKVALUES",
+      "configuration" : {
+        "timerange" : {
+          "type" : "relative",
+          "range" : 86400
+        },
+        "field" : "Severity",
+        "show_pie_chart" : true,
+        "query" : "Type:THREAT AND NOT ThreatID:\\(9999\\) AND (Severity:informational OR Severity:low OR Severity:medium OR Severity:high OR Severity:critical) AND NOT Subtype:file",
+        "show_data_table" : true
+      },
+      "col" : 4,
       "row" : 2,
       "cache_time" : 60
     }, {
@@ -754,6 +754,9 @@
     "name" : "IPORHOST",
     "pattern" : "(?:%{HOSTNAME}|%{IP})"
   }, {
+    "name" : "YEAR",
+    "pattern" : "(?>\\d\\d){1,2}"
+  }, {
     "name" : "HOST",
     "pattern" : "%{HOSTNAME}"
   }, {
@@ -795,12 +798,6 @@
   }, {
     "name" : "QUOTEDQUOTES",
     "pattern" : "(\"((?:[^\"]|\"\")*+)\")"
-  }, {
-    "name" : "HOUR",
-    "pattern" : "(?:2[0123]|[01]?[0-9])"
-  }, {
-    "name" : "YEAR",
-    "pattern" : "(?>\d\d){1,2}"
   }, {
     "name" : "IP",
     "pattern" : "(?:%{IPV6}|%{IPV4})"
