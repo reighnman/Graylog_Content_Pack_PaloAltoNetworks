@@ -35,7 +35,7 @@
       "title" : "PAN_CONFIG",
       "type" : "GROK",
       "configuration" : {
-        "grok_pattern" : "%{IPORHOST:source} +: +%{BASE10NUM:Domain},%{DATE_US2:LoggedDate} +%{TIME:LoggedTime},%{NOTCOMMA:SerialNumber},%{NOTCOMMA:Type},%{NOTCOMMA:Subtype},%{BASE10NUM:ConfigVersion},%{DATE_US2:EventDate} +%{TIME:EventTime},%{IPV4:Host},(%{NOTCOMMA:VirtualSystem})?,%{NOTCOMMA:Cmd},%{NOTCOMMA:Admin},%{NOTCOMMA:Client},%{NOTCOMMA:Result},(%{NOTCOMMA:Path})?,%{NOTCOMMA:Sequence},%{NOTCOMMA:ActionFlags}.*"
+        "grok_pattern" : "%{IPORHOST:source} +:* *%{BASE10NUM:Domain},%{DATE_US2:LoggedDate} +%{TIME:LoggedTime},%{NOTCOMMA:SerialNumber},%{NOTCOMMA:Type},%{NOTCOMMA:Subtype},%{BASE10NUM:ConfigVersion},%{DATE_US2:EventDate} +%{TIME:EventTime},%{IPV4:Host},(%{NOTCOMMA:VirtualSystem})?,%{NOTCOMMA:Cmd},%{NOTCOMMA:Admin},%{NOTCOMMA:Client},%{NOTCOMMA:Result},(%{NOTCOMMA:Path})?,%{NOTCOMMA:Sequence},%{NOTCOMMA:ActionFlags}.*"
       },
       "converters" : [ ],
       "order" : 2,
