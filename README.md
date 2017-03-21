@@ -2,6 +2,8 @@
 
 Tested with PAN-OS 6.1.3/Graylog 1.2
 
+NOTICE:  The patterns do need some updates for 7.x and I no longer have access to PAN firewalls so someone will have to fork this and take over the project.  Sorry :(
+
 This content pack provides GROK extractors for PAN Firewalls and a few example dashboards:
 * PAN Threat Summary (24h)
 * PAN Threat Summary - High & Critical (24h)
