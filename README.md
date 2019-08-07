@@ -1,4 +1,4 @@
-# Palo Alto Networks Content Pack
+# Palo Alto Networks Content Pack (Outdated - Please Fork+Update)
 
 Tested with PAN-OS 6.1.3/Graylog 1.2
 
